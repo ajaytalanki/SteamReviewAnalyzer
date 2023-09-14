@@ -147,7 +147,7 @@ print("AVERAGE NEGATIVE: ", avg_neg)
 print("AVERAGE NEUTRAL: ", avg_neu)
 print("AVERAGE POSITIVE: ", avg_pos)
 
-# plot histogram
+# Plot histogram
 plt.figure(figsize=(10, 8))
 plt.hist(negative_scores, bins=10, alpha=0.7, edgecolor='black')
 plt.hist(neutral_scores, bins=10, alpha=0.7, edgecolor='black')
