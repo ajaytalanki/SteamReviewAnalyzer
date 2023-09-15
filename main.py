@@ -16,7 +16,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 API_KEY = input("Enter Steamworks API KEY: ")
 APP_ID = input("Enter Steam game ID: ")
 
-MAX_REVIEWS = 400
+MAX_REVIEWS = 500
 review_list = []
 num_reviews = 0
     
