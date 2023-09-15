@@ -10,7 +10,7 @@ You will first need a Steamworks Web API key to retrieve the user reviews. This 
 In order to analyze the reviews of a given game, you must supply the App ID of the steam game. This can be found using a simple google search.
 
 ## Sentiment Scores
-The RoBERTa model produces a sentiment score for each review. The sentiment score contains 3 scores:  
+The RoBERTa model produces a sentiment score array for each review following the format = [negative score, neutral score, positive score].
 
 **Positive Score:**
 Definition: The positive score represents the degree or intensity of positive sentiment expressed in the text. It quantifies how positive or favorable the text is.  
