@@ -5,7 +5,6 @@ import re
 import numpy as np
 import threading
 import matplotlib.pyplot as plt
-import time 
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
@@ -14,8 +13,8 @@ from scipy.special import softmax
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Replace with Steamworks Web API key and APP ID of game
-API_KEY = 'A6318394542B822701B68D53D6716E7B'
-API_ID = '1716740'
+API_KEY = input("Enter Steamworks API KEY: ")
+APP_ID = input("Enter Steam game ID: ")
 
 MAX_REVIEWS = 400
 review_list = []
@@ -46,14 +45,14 @@ def too_many_words(review, threshold = 500):
 cursor = '*'
 num_per_page = 100
 
-start = time.time()
+print("\nRETRIEVING STEAM REVIEWS...\n")
 
 # retrieve valid reviews from steam 
 while num_reviews < MAX_REVIEWS:
 
     # Setup Steamworks API Endpoint
     encoded_cursor = urllib.parse.quote(cursor, safe='')
-    url = f'https://store.steampowered.com/appreviews/{API_ID}?json=1&cursor={encoded_cursor}&num_per_page={num_per_page}'
+    url = f'https://store.steampowered.com/appreviews/{APP_ID}?json=1&cursor={encoded_cursor}&num_per_page={num_per_page}'
     response = requests.get(url)
 
     # Successful GET request
@@ -87,29 +86,34 @@ if(len(review_list) == 0):
     print("NO REVIEWS TO ANALYZE")
     sys.exit()
 
-print("TIME TAKEN DOWNLOADING REVIEWS: ", time.time() - start)
-start = time.time()
+print("STEAM REVIEWS RETRIEVED\n")
+print("DOWNLOADING RoBERTA MODEL...\n")
 
 # downloads trained roberta model for sentiment analysis
 MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 tokenizer = AutoTokenizer.from_pretrained(MODEL)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL)
 
-print("TIME TAKEN DOWNLOADING MODEL: ", time.time() - start)
+print("RoBERTA MODEL DOWNLOADED\n")
 
-# tokenize and analyize each review
+# tokenize and analyze each review
 def process_review(review):
-    encoded_text = tokenizer(review, return_tensors='pt')
-    output = model(**encoded_text)
-    scores = output[0][0].detach().numpy()
-    scores = softmax(scores)
-    return scores
+    try:
+        encoded_text = tokenizer(review, return_tensors='pt')
+        output = model(**encoded_text)
+        scores = output.logits[0].detach().numpy()
+        scores = softmax(scores)
+        return scores
+    except Exception as e:
+        print(f"Error processing review: {str(e)}")
+        return None
 
 # function to process reviews concurrently
 def process_reviews_thread(reviews_batch, pbar):
     for review in reviews_batch:
         scores = process_review(review)
-        sentiment_scores.append(scores)
+        if scores is not None:
+            sentiment_scores.append(scores)
         pbar.update(1)  
 
 sentiment_scores = []
@@ -118,9 +122,6 @@ sentiment_scores = []
 threads = []
 batch_size = 10
 review_batches = [review_list[i:i+batch_size] for i in range(0, len(review_list), batch_size)]
-
-start = time.time()
-
 with tqdm(total=len(review_list), desc="Processing Reviews") as pbar:
     for batch in review_batches:
         thread = threading.Thread(target=process_reviews_thread, args=(batch, pbar))
@@ -131,29 +132,27 @@ with tqdm(total=len(review_list), desc="Processing Reviews") as pbar:
     for thread in threads:
         thread.join()
 
-print("TIME TAKEN TO ANALYZE REVIEWS: ", time.time() - start)
-
+# split scores by sentiment
 sentiment_scores = np.array(sentiment_scores)
 negative_scores = sentiment_scores[:, 0]
 neutral_scores = sentiment_scores[:, 1]
 positive_scores = sentiment_scores[:, 2]
 
-# calculate average scores 
-avg_neg = sum(negative_scores)/len(negative_scores)
-avg_neu = sum(neutral_scores)/len(neutral_scores)
-avg_pos = sum(positive_scores)/len(positive_scores)
-
-print("AVERAGE NEGATIVE: ", avg_neg)
-print("AVERAGE NEUTRAL: ", avg_neu)
-print("AVERAGE POSITIVE: ", avg_pos)
-
 # Plot histogram
 plt.figure(figsize=(10, 8))
-plt.hist(negative_scores, bins=10, alpha=0.7, edgecolor='black')
-plt.hist(neutral_scores, bins=10, alpha=0.7, edgecolor='black')
-plt.hist(positive_scores, bins=10, alpha=0.7, edgecolor='black')
+plt.hist(negative_scores, bins=10, alpha=0.7, edgecolor='black', label='Negative Scores')
+plt.hist(neutral_scores, bins=10, alpha=0.7, edgecolor='black', label='Neutral Scores')
+plt.hist(positive_scores, bins=10, alpha=0.7, edgecolor='black', label='Positive Scores')
 plt.xlabel('Sentiment Score')
 plt.ylabel('Frequency')
 plt.legend()
 plt.title('Distribution of Sentiment Scores')
 plt.show()
+
+# print average scores 
+avg_neg = sum(negative_scores)/len(negative_scores)
+avg_neu = sum(neutral_scores)/len(neutral_scores)
+avg_pos = sum(positive_scores)/len(positive_scores)
+print("AVERAGE NEGATIVE SCORE: ", avg_neg)
+print("AVERAGE NEUTRAL SCORE: ", avg_neu)
+print("AVERAGE POSITIVE SCORE: ", avg_pos)
