@@ -25,6 +25,14 @@ Range: A higher netural score indicates neither a negative or positive sentiment
 Definition: The positive score represents the degree or intensity of positive sentiment expressed in the text. It quantifies how positive or favorable the text is.    
 Range: A higher positive score indicates a more positive sentiment, with the range being 0-1.
 
+## Visualization/Results
+The program displays the distribution of frequencies for negative, neutral, and positive scores.  
+The average of each score is also displayed.
+
+## Limitations
+Due to time and space constraints, the program only retrievs 500 reviews of the given steam game. These reviews may also not be representative of the population, as the reviews are retrieved by the API.  
+Laslty, reviews that are over 500 words are ignored, as this is intensive for the model.  
+
 
 
 
