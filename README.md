@@ -14,15 +14,15 @@ The RoBERTa model produces a sentiment score array for each review following the
 \[negative score, neutral score, positive score\].  
 
 **Negative Score:**
-Definition: The negative score represents the degree or intensity of negative sentiment expressed in the text. It quantifies how negative or unfavorable the text is.
-Range:A higher negative score indicates a more negative sentiment, with the range being 0-1.  
+Definition: The negative score represents the degree or intensity of negative sentiment expressed in the text. It quantifies how negative or unfavorable the text is.  
+Range: A higher negative score indicates a more negative sentiment, with the range being 0-1.  
 
 **Neutral Score:**
-Definition: The neutral score indicates that the text does not express a strong positive or negative sentiment. It represents a lack of strong emotion or a balanced mix of positive and negative sentiments.
+Definition: The neutral score indicates that the text does not express a strong positive or negative sentiment. It represents a lack of strong emotion or a balanced mix of positive and negative sentiments.  
 Range: A higher netural score indicates neither a negative or positive sentiment, with the range being 0-1.  
 
 **Positive Score:**
-Definition: The positive score represents the degree or intensity of positive sentiment expressed in the text. It quantifies how positive or favorable the text is.  
+Definition: The positive score represents the degree or intensity of positive sentiment expressed in the text. It quantifies how positive or favorable the text is.    
 Range: A higher positive score indicates a more positive sentiment, with the range being 0-1.
 
 
