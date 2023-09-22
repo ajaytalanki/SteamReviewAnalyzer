@@ -20,7 +20,7 @@ MAX_REVIEWS = 500
 review_list = []
 num_reviews = 0
     
-# determnes if the review contains majority irrelevant ascii_art
+# determines if the review contains irrelevant characters for ascii art
 def is_ascii_art(text, threshold = 0.5):
     text = re.sub(r'\s', '', text)
     total_chars = len(text)
@@ -30,7 +30,7 @@ def is_ascii_art(text, threshold = 0.5):
     percentage = (non_alphanumeric_chars / total_chars)
     return percentage > threshold
 
-# determines if the review is a checklist, this makes is hard to analyze
+# determines if the review is a checklist, which is hard for the model to analyze
 def too_many_paragraphs(review, threshold = 5):
     copy = review
     paragraphs = copy.split('\n')
@@ -57,17 +57,15 @@ while num_reviews < MAX_REVIEWS:
 
     # Successful GET request
     if response.status_code == 200:
-
+        
         json = response.json()
 
         # No reviews to analyze
         if json['query_summary']['num_reviews'] == 0:
             break
 
-        # retreive the reviews if they are english and not ascii art
-        reviews = json['reviews']
-
         # populates list of valid reviews
+        reviews = json['reviews']
         for review in reviews:
             review_text = review['review']
             if not is_ascii_art(review_text):
